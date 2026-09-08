@@ -3,7 +3,7 @@ require "option_parser"
 require "json"
 
 module RightSignalsCLI
-  VERSION = "0.5.0"
+  VERSION = "0.5.1"
 
   struct Config
     property base_url : String
@@ -39,7 +39,7 @@ module RightSignalsCLI
 
     positional = args.reject { |a| a.starts_with?("-") }
     command = positional[0]? || "help"
-    id = positional[1]?.try(&.to_i64?)
+    id = positional[1]?
 
     if command == "version"
       puts VERSION
@@ -175,10 +175,10 @@ module RightSignalsCLI
 
   def self.print_issues(issues : Array(RightSignals::IssueSummary))
     return puts "No issues." if issues.empty?
-    puts "%-6s %-8s %-40s %-16s %5s  %s" % ["ID", "STATUS", "SUMMARY", "SERVICE", "COUNT", "LAST SEEN"]
+    puts "%-36s %-8s %-32s %-14s %5s  %s" % ["ID", "STATUS", "SUMMARY", "SERVICE", "COUNT", "LAST SEEN"]
     issues.each do |i|
-      puts "%-6d %-8s %-40s %-16s %5d  %s" % [
-        i.id, i.status, truncate(i.summary, 40), truncate(i.service, 16),
+      puts "%-36s %-8s %-32s %-14s %5d  %s" % [
+        i.id, i.status, truncate(i.summary, 32), truncate(i.service, 14),
         i.occurrence_count, time_ago(i.last_seen_at),
       ]
     end
@@ -202,11 +202,11 @@ module RightSignalsCLI
 
   def self.print_occurrences(occs : Array(RightSignals::OccurrenceSummary))
     return puts "No occurrences." if occs.empty?
-    puts "%-6s %-24s %-40s %-16s  %s" % ["ID", "EXCEPTION", "MESSAGE", "SERVICE", "WHEN"]
+    puts "%-36s %-22s %-32s %-14s  %s" % ["ID", "EXCEPTION", "MESSAGE", "SERVICE", "WHEN"]
     occs.each do |o|
-      puts "%-6d %-24s %-40s %-16s  %s" % [
-        o.id, truncate(o.exception_type, 24), truncate(o.message || "", 40),
-        truncate(o.service, 16), time_ago(o.occurred_at),
+      puts "%-36s %-22s %-32s %-14s  %s" % [
+        o.id, truncate(o.exception_type, 22), truncate(o.message || "", 32),
+        truncate(o.service, 14), time_ago(o.occurred_at),
       ]
     end
   end
@@ -222,11 +222,11 @@ module RightSignalsCLI
 
   def self.print_events(events : Array(RightSignals::EventSummary))
     return puts "No events." if events.empty?
-    puts "%-6s %-20s %-16s %-24s  %s" % ["ID", "EVENT", "SERVICE", "USER", "WHEN"]
+    puts "%-36s %-18s %-14s %-22s  %s" % ["ID", "EVENT", "SERVICE", "USER", "WHEN"]
     events.each do |e|
-      puts "%-6d %-20s %-16s %-24s  %s" % [
-        e.id, truncate(e.event_name || "unnamed", 20), truncate(e.service, 16),
-        truncate(e.user_email || "n/a", 24), time_ago(e.timestamp),
+      puts "%-36s %-18s %-14s %-22s  %s" % [
+        e.id, truncate(e.event_name || "unnamed", 18), truncate(e.service, 14),
+        truncate(e.user_email || "n/a", 22), time_ago(e.timestamp),
       ]
     end
   end

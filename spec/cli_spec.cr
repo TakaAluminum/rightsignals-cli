@@ -58,4 +58,16 @@ describe "RightSignalsCLI" do
     output = `RIGHTSIGNALS_TOKEN=fake crystal run src/main.cr -- issues:reopen 2>&1`
     output.should contain("Usage: rightsignals issues:reopen")
   end
+
+  # A UUID id used to be silently discarded by a to_i64? conversion, so every
+  # detail view and both status commands fell through to their "no id" branch.
+  it "keeps a UUID id for issues:resolve" do
+    output = `RIGHTSIGNALS_TOKEN=fake crystal run src/main.cr -- issues:resolve 019fba62-5867-7c79-9622-2d6c8ea12d73 --url=http://127.0.0.1:1 2>&1`
+    output.should_not contain("Usage: rightsignals issues:resolve")
+  end
+
+  it "keeps a UUID id for issues:reopen" do
+    output = `RIGHTSIGNALS_TOKEN=fake crystal run src/main.cr -- issues:reopen 019fba62-5867-7c79-9622-2d6c8ea12d73 --url=http://127.0.0.1:1 2>&1`
+    output.should_not contain("Usage: rightsignals issues:reopen")
+  end
 end
