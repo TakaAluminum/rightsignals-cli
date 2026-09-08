@@ -34,6 +34,23 @@ jobs:
       - run: shards install
       - run: shards build --release --no-debug
       - run: mv bin/rightsignals bin/${{ matrix.artifact }}
+
+      # v0.5.0 shipped a macOS binary linked against openssl@1.1, which
+      # Homebrew has since removed entirely, so it aborted on launch for
+      # every user. Fail the build instead of publishing that again.
+      - name: Check shared library linkage
+        run: |
+          set -euo pipefail
+          bin="bin/${{ matrix.artifact }}"
+          if [ "$RUNNER_OS" = "macOS" ]; then
+            otool -L "$bin"
+            if otool -L "$bin" | grep -q 'openssl@1\.1'; then
+              echo "::error::$bin links openssl@1.1, which Homebrew no longer provides"
+              exit 1
+            fi
+          else
+            ldd "$bin" || true
+          fi
       - uses: actions/upload-artifact@v7
         with:
           name: ${{ matrix.artifact }}
